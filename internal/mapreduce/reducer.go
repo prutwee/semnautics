@@ -81,3 +81,18 @@ func (r *ReducerPool) worker(ctx context.Context, id int, inbound <-chan types.M
 		}
 	}
 }
+
+// PrintMetrics safely dumps the current state of all partitions.
+// In a production engine, this would be exposed via a lockless Arrow Flight gRPC read.
+func (r *ReducerPool) PrintMetrics() {
+	fmt.Println("\n--- FINAL CALCULATED METRICS ---")
+	for i, state := range r.states {
+		if len(state.State) > 0 {
+			fmt.Printf("Partition %d:\n", i)
+			for hash, val := range state.State {
+				fmt.Printf("  DimensionHash: %d -> Value: %.2f\n", hash, val)
+			}
+		}
+	}
+	fmt.Println("--------------------------------")
+}
